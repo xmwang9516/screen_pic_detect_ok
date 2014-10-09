@@ -5,35 +5,6 @@
 int main(int argc,char * argv[])
 {
 
-  /*ofstream ofile("./testimgs/results");
-  for (int i = 0; i < 100; ++i)
-  {
-      char szName[1024];
-      memset(szName,0,sizeof(szName));
-      sprintf(szName,"./testimgs/test_scr_%d.jpg",i+1);
-
-      cout << szName << endl;
-
-      int dRet = 0;
-
-      dRet = img_predict(szName);
-
-      ofile << dRet << "\n";
-
-      cout << "dRet = " << dRet << endl;
-      if (dRet == 1)
-        cout << "This image is not a screen picture." << endl;
-      else if(dRet == -1)
-        cout << "This image is a screen picture." << endl;
-      else
-      {
-        cout << "Error. Maybe the input params are not right!" << endl;
-        cout << "param format : " << "./screen_picture_detect_img -i ./testimgs/test11.jpg" << endl;
-      }
-
-    }
-    ofile.close();*/
-
   int i = 0;
   int nIndex = 0;
 
@@ -129,7 +100,7 @@ int main(int argc,char * argv[])
   else
   {
     cout << "Error. Maybe the input params are not right!" << endl;
-    cout << "param format : " << "./screen_picture_detect_img -i ./testimgs/test11.jpg" << endl;
+    cout << "param format : " << "./screen_picture_detect_img -i ./testimgs/test1.jpg" << endl;
   }
     
  

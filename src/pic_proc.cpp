@@ -22,7 +22,7 @@ int     maxImSize = MAX_IMG_SIZE;  // image resize size(height=maxImSize or widt
 
 
 /************************************************************************/
-/* input original img, output resized img         */
+/*                input original img, output resized img                */
 /************************************************************************/
 void img_resize(std::string img_ori_path, std::string img_dst_path, int nSize)
 {
@@ -82,7 +82,6 @@ int img_predict(char* imgName)
     	return nlabel;
     }
 
-
     int nSize = cWidth * cHeight * featDim;
  
     char      *eachfeat  = (char*)malloc(nSize * nSize); 
@@ -97,12 +96,13 @@ int img_predict(char* imgName)
 
 	x = (struct feature_node *) malloc(max_nr_attr*sizeof(struct feature_node));
 	
+
 	nlabel = do_each_predict(eachfeat);
 
 	free_and_destroy_model(&model_);
 	free(x);
 	free(eachfeat);
-	free(line);
+	//free(line);
 
 	return nlabel;
 }
@@ -870,18 +870,18 @@ void do_predict(FILE *input, FILE *output)
 		sumpt += predict_label*target_label;
 		++total;
 	}
-	if(model_->param.solver_type==L2R_L2LOSS_SVR ||
-	   model_->param.solver_type==L2R_L1LOSS_SVR_DUAL ||
-	   model_->param.solver_type==L2R_L2LOSS_SVR_DUAL)
-	{
-		info("Mean squared error = %g (regression)\n",error/total);
-		info("Squared correlation coefficient = %g (regression)\n",
-			((total*sumpt-sump*sumt)*(total*sumpt-sump*sumt))/
-			((total*sumpp-sump*sump)*(total*sumtt-sumt*sumt))
-			);
-	}
-	else
-		info("Accuracy = %g%% (%d/%d)\n",(double) correct/total*100,correct,total);
+	// if(model_->param.solver_type==L2R_L2LOSS_SVR ||
+	//    model_->param.solver_type==L2R_L1LOSS_SVR_DUAL ||
+	//    model_->param.solver_type==L2R_L2LOSS_SVR_DUAL)
+	// {
+	// 	info("Mean squared error = %g (regression)\n",error/total);
+	// 	info("Squared correlation coefficient = %g (regression)\n",
+	// 		((total*sumpt-sump*sumt)*(total*sumpt-sump*sumt))/
+	// 		((total*sumpp-sump*sump)*(total*sumtt-sumt*sumt))
+	// 		);
+	// }
+	// else
+	// 	info("Accuracy = %g%% (%d/%d)\n",(double) correct/total*100,correct,total);
 	if(flag_predict_probability)
 		free(prob_estimates);
 }
@@ -1059,3 +1059,113 @@ void feat_extract(std::string img_name, std::vector<float> &vecfeat,int &cHeight
 }
 
 
+void lbp_extract(string img_pos_file,string img_neg_file,string feat_save_file)
+{
+
+   
+  ofstream feat_file(feat_save_file.c_str()); 
+
+   for(int iFile=1;iFile<3;iFile++)
+   {
+     vector<string>   img_path;
+     img_path.clear();
+     string           img_file = "";
+     string           strLabel = "";
+     if(iFile == 1){
+          img_file = img_pos_file;
+          strLabel = "+1";
+     }
+     if(iFile == 2){
+          img_file = img_neg_file;
+          strLabel = "-1";
+     }
+    cout << "iFile = " << iFile << endl;
+    cout << img_file.c_str() << " is processing..." << endl;
+   
+    string strline = "";
+    
+    ifstream img_name(img_file.c_str()); 
+    while(getline(img_name,strline))
+    {
+      if(strline != "")
+      {
+         string strpath = "./imgs/";
+ 	      strpath = strpath + strline;
+	 
+         img_path.push_back(strpath);
+      }
+        
+    }   
+    img_name.close();
+    cout << img_path.size() << endl;
+ 
+   // ext feat and save;
+  
+   
+   for(int i=0;i<img_path.size();i++)
+   {
+	// define lbp object;
+   	VlLbp * lbp = vl_lbp_new(VlLbpUniform,false);
+ 
+	// load img;
+   	//const char* imgPath = "./imgs/0a0ee8ec-0f54-464a-addd-715b3eae18fc.jpg";
+    const char* imgPath = img_path[i].c_str();
+    cout << "imgpath = [" << imgPath << "]" << endl;
+
+
+   	IplImage* img = cvLoadImage(imgPath,CV_LOAD_IMAGE_COLOR);
+   	if (!img){ 
+             cout << imgPath << " load failed!"<< endl;
+             //return ;
+        }
+
+      IplImage* grayImg = convert_to_gray32(img);//convert to gray_32 img, float* data;
+	  int    imgWidth = grayImg->width;
+	  int    imgHeight = grayImg->height;
+
+	  // resize gray image if need;
+	  if(imgWidth > maxImSize || imgHeight >maxImSize)
+	  {
+     	   grayImg = resize_image(grayImg,maxImSize);
+    	   imgWidth = grayImg->width;
+    	   imgHeight = grayImg->height;
+    }
+
+   	float* im= (float*)grayImg->imageData ;	
+
+	// extract lbp feat;
+ 	vl_size lbpdm = vl_lbp_get_dimension(lbp);
+   	vl_size cellSize = CELL_SIZE; // 3*3;  
+
+   	int nSize = floor(imgWidth/cellSize) * floor(imgHeight/cellSize) * lbpdm;
+
+   	float *lbpfeat = (float*)malloc(nSize * sizeof(float));
+
+   	vl_lbp_process(lbp, lbpfeat, im , imgWidth, imgHeight, cellSize) ;
+
+   	int  cWidth = imgWidth / cellSize;
+   	int  cHeight = imgHeight / cellSize ;
+    int  featDim = lbpdm;
+ 	  // save feat into file;
+    //ofstream feat_file(feat_save_file.c_str(),ios::app);  // for save the neg feature;
+
+    feat_file << strLabel.c_str() << " ";
+    for (int ii = 0; ii < cHeight*cWidth*featDim; ii++)
+    {
+      feat_file << (ii + 1) << ":"<< lbpfeat[ii] << " ";
+    }
+    feat_file << "\n";
+ 
+   
+	// delete the object lbp;
+   	vl_lbp_delete(lbp);
+   	free(lbpfeat);
+
+   	cvReleaseImage(&img);
+   	cvReleaseImage(&grayImg);
+  }
+}
+feat_file.close();
+
+   
+}

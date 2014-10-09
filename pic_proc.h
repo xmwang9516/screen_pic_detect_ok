@@ -56,38 +56,40 @@ void            img_resize(std::string img_ori_path, std::string img_dst_path, i
 int             imgs_predict(char *testFile,char *resultFile);
 // return the predict result of one img;
 int             img_predict(char* imgName);
-// feature ;
+// extract feature ;
 void            feat_extract(std::string img_name, std::vector<float> &vecfeat,int &cHeight, int &cWidth,int &featDim);
+// extract feature ; 
+void         	feat_extract(std::string img_pos_file,std::string img_neg_file,std::string feat_save_file);
 // convert img to gray float;
 IplImage*       convert_to_gray32( IplImage* img );
 // do each img predict;
 int             do_each_predict(char *feat_line);
-
+// img predict;
 void            do_predict(FILE *input, FILE *output);
-
+// print null;
 void            print_null(const char *s) {}
-
+// show help;
 void         	exit_with_help();
-
+// read line of file;
 static char* 	readline(FILE *input);
-
+// parse params;
 void         	parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name);
-
+// show read problem;
 void         	read_problem(const char *filename);
-
+// corss validation;
 void         	do_cross_validation();
-
+// show input error;
 void         	exit_input_error(int line_num);
-
-void         	feat_extract(std::string img_pos_file,std::string img_neg_file,std::string feat_save_file);
-
+// get imgs list of input path;
 void         	get_file_list(std::string file_path, int depth, std::vector<string> &vecfilelist);
-
+// train model with params;
 int          	train_model(int nNum, char **pParams);
-
+// train model main func;
 void         	train_model(std::string img_pos_file,std::string img_neg_file);
 // duplicate img detection function , input is img_name1 and img_name2;
 int             dup_img_detect(std::string img_path1, std::string img_path2);
+// extract feature all;
+void            lbp_extract(string img_pos_file,string img_neg_file,string feat_save_file);
 
 
 

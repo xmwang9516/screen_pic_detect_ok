@@ -1,4 +1,127 @@
 
+1. image resize:
+
+(1) compile:
+g++ screen_picture_img_resize.h screen_picture_img_resize.cpp -o screen_picture_img_resize  -I$VLROOT -L$VLROOT/bin/glnxa64 -L/home/wxm/liblinear-1.94 -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear
+
+(2) test input:
+./screen_picture_img_resize -i ./testimgs/test11.jpg -o ./testimgs/test11_resize.jpg -s 100
+
+-----------------------------------------------------------------------
+2.  train:
+
+(1) compile:
+ g++ screen_picture_train.h screen_picture_train.cpp -o screen_picture_train  -I$VLROOT -L$VLROOT/bin/glnxa64 -L/home/wxm/liblinear-1.94 -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear
+
+(2) test input:
+./screen_picture_train -p ./train/pos_imgs/ -n ./train/neg_imgs/
+
+-----------------------------------------------------------------------
+3.  img_predict:
+
+(1) compile:
+g++ screen_picture_detect_img.h screen_picture_detect_img.cpp -o screen_picture_detect_img  -I$VLROOT -L$VLROOT/bin/glnxa64 -L/home/wxm/liblinear-1.94 -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear
+
+(2) test input:
+./screen_picture_detect_img -i ./testimgs/test11.jpg 
+
+-----------------------------------------------------------------------
+4.  duplicate_detect:
+
+(1) compile:
+g++ screen_picture_duplicate_detect.h screen_picture_duplicate_detect.cpp -o screen_picture_duplicate_detect  -I$VLROOT -L$VLROOT/bin/glnxa64 -L/home/wxm/liblinear-1.94 -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear
+
+(2) test input:
+./screen_picture_duplicate_detect ./testimgs/test1.jpg ./testimgs/test2.jpg
+
+
+g++ screen_picture_img_resize.h screen_picture_img_resize.cpp screen_picture_train.h screen_picture_train.cpp screen_picture_detect_img.h screen_picture_detect_img.cpp screen_picture_duplicate_detect.h screen_picture_duplicate_detect.cpp -I$VLROOT -L$VLROOT/bin/glnxa64 -L/home/wxm/liblinear-1.94 -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear -fPIC -shared -o libscreen_pic_detect.so 
+
+
+
+
+
+
+g++ screen_picture_img_resize.h screen_picture_img_resize.cpp   -lopencv_core -lopencv_highgui -lopencv_imgproc  -fPIC -shared -o libscreen_pic_img_resize.so 
+
+
+g++ screen_picture_img_resize.cpp -L -lscreen_pic_img_resize -lopencv_core -lopencv_highgui -lopencv_imgproc -o screen_picture_img_resize_test
+
+
+
+test1:
+wxm@wxm-virtual-machine:~/screen_pic_detect$ g++ screen_picture_duplicate_detect.h screen_picture_duplicate_detect.cpp -o screen_picture_duplicate_detect  -I$VLROOT -L$VLROOT/bin/glnxa64  -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear
+wxm@wxm-virtual-machine:~/screen_pic_detect$ ./screen_picture_duplicate_detect ./testimgs/test1.jpg ./testimgs/test2.jpg
+dup result = dissimilar
+
+
+
+ g++ screen_picture_duplicate_detect.h screen_picture_duplicate_detect.cpp -o screen_picture_duplicate_detect  -I$VLROOT  -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear
+
+
+g++ screen_picture_duplicate_detect.h screen_picture_duplicate_detect.cpp   -I ./vlfeatROOT/vlfeat-0.9.19  -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear  -fPIC -shared -o libscreen_picture_duplicate_detect.so 
+
+
+g++ screen_picture_duplicate_detect.cpp -L -lscreen_picture_duplicate_detect -I ./vlfeatROOT/vlfeat-0.9.19 -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -o screen_picture_duplicate_detect_test
+
+
+<ok>
+g++ screen_picture_duplicate_detect.h screen_picture_duplicate_detect.cpp   -I ./vlfeatROOT/vlfeat-0.9.19  -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear  -fPIC -shared -o libtest_screen_picture_duplicate_detect.so 
+
+g++ -g  test_duplicate_detect_so.cpp -L. -ltest_screen_picture_duplicate_detect -I ./vlfeatROOT/vlfeat-0.9.19 -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -o test_screen_duplicate_detect
+
+
+
+
+config:
+
+1. 
+> sudo vim ~/.bashrc
+
+Add the following at the end the bashrc file("/path/to/" is the path of the project folder "screen_pic_detect").
+"export LD_LIBRARY_PATH=/path/to/screen_pic_detect:$LD_LIBRARY_PATH" 
+
+-------------------------------------------------------------------
+<screen_picture_duplicate_detect>   <OK>
+ 
+ g++ screen_picture_duplicate_detect.h screen_picture_duplicate_detect.cpp   -I ./include -L. -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear  -fPIC -shared -o libtest_screen_picture_duplicate_detect.so 
+
+ g++ -g  test_duplicate_detect_so.cpp -L. -ltest_screen_picture_duplicate_detect  -I ./include -L. -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc  -llinear -o test_screen_duplicate_detect
+
+ ./test_screen_duplicate_detect ./testimgs/test1.jpg ./testimgs/test2.jpg
+
+
+ -------------------------------------------------------------------
+<screen_picture_train>   <OK>
+
+
+g++ screen_picture_train.h screen_picture_train.cpp   -I ./include -L. -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear  -fPIC -shared -o libtest_screen_picture_train.so 
+
+ g++ -g  test_screen_picture_train_so.cpp -L. -ltest_screen_picture_train  -I ./include -L. -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc  -llinear -o test_screen_picture_train_so
+
+ ./test_screen_picture_train_so -p ./train/pos_imgs/ -n ./train/neg_imgs/
+
+-------------------------------------------------------------------
+ <screen_picture_detect_img>   <OK>
+
+
+g++ screen_picture_detect_img.h screen_picture_detect_img.cpp   -I ./include -L. -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear  -fPIC -shared -o libtest_screen_picture_detect_img.so 
+
+ g++ -g  test_screen_picture_detect_img_so.cpp -L. -ltest_screen_picture_detect_img  -I ./include -L. -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc  -llinear -o test_screen_picture_detect_img_so
+
+ ./test_screen_picture_detect_img_so -i ./testimgs/test11.jpg 
+
+
+
+ -------------------------------------------------------------------
+ <screen_picture_img_resize>   <OK>
+
+
+g++ screen_picture_img_resize.h screen_picture_img_resize.cpp   -I ./include -L. -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc -llinear  -fPIC -shared -o libtest_screen_picture_img_resize.so 
+
+ g++ -g  test_screen_picture_img_resize_so.cpp -L. -ltest_screen_picture_img_resize  -I ./include -L. -lvl -lopencv_core -lopencv_highgui -lopencv_imgproc  -llinear -o test_screen_picture_img_resize_so
+
+ ./test_screen_picture_img_resize_so -i ./testimgs/test11.jpg -o ./testimgs/test11_resize.jpg -s 100
 
 
 
